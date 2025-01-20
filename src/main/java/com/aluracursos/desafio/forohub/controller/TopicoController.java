@@ -1,79 +1,77 @@
 package com.aluracursos.desafio.forohub.controller;
 
-import com.aluracursos.desafio.forohub.dto.TopicoDTO;
+import com.aluracursos.desafio.forohub.dto.TopicoRequest;
 import com.aluracursos.desafio.forohub.entity.Topico;
 import com.aluracursos.desafio.forohub.repository.TopicoRepository;
-import com.aluracursos.desafio.forohub.service.TopicoService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import jakarta.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/topicos")
 public class TopicoController {
 
-    @Autowired
-    private TopicoRepository topicoRepository;
+    private final TopicoRepository topicoRepository;
 
-    // Obtener todos los tópicos
-    @GetMapping
-    public List<Topico> listarTodos() {
-        return topicoRepository.findAll();
-    }
-
-    // Obtener los primeros 10 tópicos ordenados por fecha de creación (ascendente)
-    @GetMapping("/primeros10")
-    public List<Topico> listarPrimeros10() {
-        return topicoRepository.findTop10ByOrderByFechaCreacionAsc();
+    public TopicoController(TopicoRepository topicoRepository) {
+        this.topicoRepository = topicoRepository;
     }
 
     // Crear un nuevo tópico
     @PostMapping
-    public ResponseEntity<Topico> crearTopico(@RequestBody @Valid Topico nuevoTopico) {
-        Topico topicoGuardado = topicoRepository.save(nuevoTopico);
-        return ResponseEntity.status(201).body(topicoGuardado);
+    public ResponseEntity<Topico> crearTopico(@RequestBody @Valid TopicoRequest topicoRequest) {
+        Topico topico = new Topico();
+        topico.setTitulo(topicoRequest.getTitulo());
+        topico.setMensaje(topicoRequest.getMensaje());
+        topico.setCategoria(topicoRequest.getCategoria());
+        topicoRepository.save(topico);
+        return ResponseEntity.status(201).body(topico);
+    }
+
+    // Listar todos los tópicos
+    @GetMapping
+    public ResponseEntity<List<Topico>> listarTopicos() {
+        List<Topico> topicos = topicoRepository.findAll();
+        return ResponseEntity.ok(topicos);
     }
 
     // Obtener un tópico específico por ID
     @GetMapping("/{id}")
-    public ResponseEntity<Topico> obtenerTopico(@PathVariable Long id) {
-        return topicoRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Topico> obtenerTopicoPorId(@PathVariable Long id) {
+        Optional<Topico> topico = topicoRepository.findById(id);
+        return topico.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Actualizar un tópico existente
+    // Actualizar un tópico
     @PutMapping("/{id}")
-    public ResponseEntity<Topico> actualizarTopico(@PathVariable Long id, @RequestBody @Valid Topico topicoActualizado) {
-        return topicoRepository.findById(id).map(topico -> {
-            topico.setTitulo(topicoActualizado.getTitulo());
-            topico.setMensaje(topicoActualizado.getMensaje());
-            topico.setFechaCreacion(topicoActualizado.getFechaCreacion());
-            Topico actualizado = topicoRepository.save(topico);
-            return ResponseEntity.ok(actualizado);
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> actualizarTopico(@PathVariable Long id, @RequestBody @Valid TopicoRequest topicoRequest) {
+        Optional<Topico> topicoExistente = topicoRepository.findById(id);
+
+        if (topicoExistente.isPresent()) {
+            Topico topico = topicoExistente.get();
+            topico.setTitulo(topicoRequest.getTitulo());
+            topico.setMensaje(topicoRequest.getMensaje());
+            topico.setCategoria(topicoRequest.getCategoria());
+            topicoRepository.save(topico);
+            return ResponseEntity.ok(topico);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Eliminar un tópico
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> eliminarTopico(@PathVariable Long id) {
-        return topicoRepository.findById(id).map(topico -> {
-            topicoRepository.delete(topico);
+    public ResponseEntity<Void> eliminarTopico(@PathVariable Long id) {
+        Optional<Topico> topico = topicoRepository.findById(id);
+
+        if (topico.isPresent()) {
+            topicoRepository.delete(topico.get());
             return ResponseEntity.noContent().build();
-        }).orElse(ResponseEntity.notFound().build());
-    }
-    private final TopicoService topicoService;
-
-    public TopicoController(TopicoService topicoService) {
-        this.topicoService = topicoService;
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<TopicoDTO> obtenerTopicoPorId(@PathVariable Long id) {
-        TopicoDTO topico = topicoService.obtenerTopicoPorId(id);
-        return ResponseEntity.ok(topico);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

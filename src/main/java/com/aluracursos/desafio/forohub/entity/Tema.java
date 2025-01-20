@@ -1,19 +1,33 @@
-package com.aluracursos.desafio.forohub.dto;
+package com.aluracursos.desafio.forohub.model;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.persistence.*;
 
-public class TopicoRequest {
+@Entity
+@Table(name = "temas")
+public class Tema {
 
-    @NotBlank(message = "El título no puede estar vacío")
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
     private String titulo;
 
-    @NotBlank(message = "El mensaje no puede estar vacío")
+    @Column(nullable = false)
     private String mensaje;
 
-    @NotBlank(message = "La categoría no puede estar vacía")
+    @Column(nullable = false)
     private String categoria;
 
     // Getters y Setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public String getTitulo() {
         return titulo;
     }

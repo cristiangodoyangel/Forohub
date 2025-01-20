@@ -2,7 +2,7 @@ package com.aluracursos.desafio.forohub.dto;
 
 import jakarta.validation.constraints.NotBlank;
 
-public class TopicoRequest {
+public class TemaRequest {
 
     @NotBlank(message = "El título no puede estar vacío")
     private String titulo;
