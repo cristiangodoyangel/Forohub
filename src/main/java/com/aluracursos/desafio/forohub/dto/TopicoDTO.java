@@ -1,7 +1,5 @@
 package com.aluracursos.desafio.forohub.dto;
 
-import com.aluracursos.desafio.forohub.entity.Topico;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -14,17 +12,15 @@ public class TopicoDTO {
     private String autor;
     private String curso;
 
-    // Constructor que acepta un objeto Topico
-    public TopicoDTO(Topico topico) {
+    // Constructor que acepta todos los campos
+    public TopicoDTO(String titulo, String mensaje, LocalDateTime fechaCreacion, String estado, String autor, String curso) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-        this.titulo = topico.getTitulo();
-        this.mensaje = topico.getMensaje();
-        this.fechaCreacion = (topico.getFechaCreacion() != null)
-                ? topico.getFechaCreacion().format(formatter)
-                : null;
-        this.estado = topico.getEstado();
-        this.autor = topico.getAutor();
-        this.curso = topico.getCurso();
+        this.titulo = titulo;
+        this.mensaje = mensaje;
+        this.fechaCreacion = (fechaCreacion != null) ? fechaCreacion.format(formatter) : null;
+        this.estado = estado;
+        this.autor = autor;
+        this.curso = curso;
     }
 
     // Getters y setters
