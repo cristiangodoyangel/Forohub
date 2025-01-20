@@ -1,13 +1,11 @@
-package com.aluracursos.desafio.forohub.entity;
+package com.aluracursos.desafio.forohub.dto;
 
-import jakarta.persistence.*;
+import com.aluracursos.desafio.forohub.entity.Topico;
 
-@Entity
-public class Topico {
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class TopicoDTO {
 
     private String titulo;
     private String mensaje;
@@ -16,29 +14,20 @@ public class Topico {
     private String autor;
     private String curso;
 
-    // Constructor por defecto (requerido por JPA)
-    public Topico() {
+    // Constructor que acepta un objeto Topico
+    public TopicoDTO(Topico topico) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        this.titulo = topico.getTitulo();
+        this.mensaje = topico.getMensaje();
+        this.fechaCreacion = (topico.getFechaCreacion() != null)
+                ? topico.getFechaCreacion().format(formatter)
+                : null;
+        this.estado = topico.getEstado();
+        this.autor = topico.getAutor();
+        this.curso = topico.getCurso();
     }
 
-    // Constructor con argumentos
-    public Topico(String titulo, String mensaje, String fechaCreacion, String estado, String autor, String curso) {
-        this.titulo = titulo;
-        this.mensaje = mensaje;
-        this.fechaCreacion = fechaCreacion;
-        this.estado = estado;
-        this.autor = autor;
-        this.curso = curso;
-    }
-
-    // Getters y Setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
+    // Getters y setters
     public String getTitulo() {
         return titulo;
     }
